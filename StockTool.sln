@@ -1,0 +1,26 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 10.00
+# Visual Studio 2008
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "stockMgr", "stockMgr\stockMgr.csproj", "{4854C26E-2AAA-465E-A432-AB77783BE69A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StockTool", "StockTool\StockTool.csproj", "{B96E1FA3-73CE-4F63-BF03-CCF619C0BCDE}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{4854C26E-2AAA-465E-A432-AB77783BE69A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4854C26E-2AAA-465E-A432-AB77783BE69A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4854C26E-2AAA-465E-A432-AB77783BE69A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4854C26E-2AAA-465E-A432-AB77783BE69A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B96E1FA3-73CE-4F63-BF03-CCF619C0BCDE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B96E1FA3-73CE-4F63-BF03-CCF619C0BCDE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B96E1FA3-73CE-4F63-BF03-CCF619C0BCDE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B96E1FA3-73CE-4F63-BF03-CCF619C0BCDE}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
