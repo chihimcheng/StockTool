@@ -146,7 +146,7 @@
             this.colTodayHL.HeaderText = "今日波幅";
             this.colTodayHL.Name = "colTodayHL";
             this.colTodayHL.ReadOnly = true;
-            this.colTodayHL.Width = 135;
+            this.colTodayHL.Width = 136;
             // 
             // btnRefresh
             // 
