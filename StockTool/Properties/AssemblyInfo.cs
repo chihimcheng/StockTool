@@ -11,7 +11,7 @@ using System.Resources;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("投資小工具")]
-[assembly: AssemblyCopyright("©  2010 Him 著作權所有")]
+[assembly: AssemblyCopyright("©  2011 Him 著作權所有")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

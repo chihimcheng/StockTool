@@ -157,11 +157,12 @@ namespace stockMgr
             }
         }
         
-        public double GetVolatility(string code)
+        public double GetVolatility(string code, int numOfDays)
         {
             double[] prices;
+            DateTime dayFrom = DateTime.Today.AddDays(-numOfDays);
             string url = "http://ichart.yahoo.com/table.csv?s=" + code + "&d=" + (DateTime.Today.Month - 1).ToString() + "&e=" + DateTime.Today.Day.ToString() + "&f=" +
-                DateTime.Today.Year + "&g=d&a=" + (DateTime.Today.Month - 1).ToString() + "&b=" + DateTime.Today.Day.ToString() + "&c=" + (DateTime.Today.Year - 1).ToString() + "&ignore=.csv";
+                DateTime.Today.Year + "&g=d&a=" + (dayFrom.Month - 1).ToString() + "&b=" + dayFrom.Day.ToString() + "&c=" + dayFrom.Year.ToString() + "&ignore=.csv";
             try
             {
                 HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);

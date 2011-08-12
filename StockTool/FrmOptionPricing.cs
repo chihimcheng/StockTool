@@ -99,9 +99,24 @@ namespace StockTool
             if (!string.IsNullOrEmpty(txtVolatility.Text) && txtVolatility.Text[0] == '=' && txtVolatility.Text.Length > 1)
             {
                 double volatility = double.NaN;
+                string code;
+                int numOfDays;
+                int indexComma = txtVolatility.Text.IndexOf(',');
+                if (indexComma > 0)
+                {
+                    code = txtVolatility.Text.Substring(1, indexComma - 1);
+                    if (!int.TryParse(txtVolatility.Text.Substring(indexComma + 1), out numOfDays))
+                        MessageBox.Show("波幅輸入錯誤！", "錯誤", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+                else
+                {
+                    code = txtVolatility.Text.Substring(1);
+                    numOfDays = 365;
+                }
+
                 try
                 {
-                    volatility = _stockMgr.GetVolatility(txtVolatility.Text.Substring(1));
+                    volatility = _stockMgr.GetVolatility(code, numOfDays);
                 }
                 catch (Exception ex)
                 {
