@@ -299,7 +299,6 @@ namespace stockMgr
 
         private void GetQuoteFromM18(StockData stock)
         {
-            TimeSpan timestamp = DateTime.UtcNow - new DateTime(1970, 1, 1, 0, 0, 0);
             try
             {
                 HttpWebRequest request = (HttpWebRequest)WebRequest.Create("http://money18.on.cc/js/daily/quote/" + stock.code.Substring(0, stock.code.Length - 3) + "_d.js?t=1294639633954");
@@ -317,6 +316,40 @@ namespace stockMgr
                 endIndex = htmlData.IndexOf(',', startIndex) - 1;
                 float prevClose = float.NaN;
                 float.TryParse(htmlData.Substring(startIndex, endIndex - startIndex).Trim(new char[] { ' ', '"' }), out prevClose);
+                ExtentedStockData eStock = stock as ExtentedStockData;
+                if (eStock != null)
+                {
+                    startIndex = htmlData.IndexOf("mthHigh:", 15) + 8;
+                    endIndex = htmlData.IndexOf(',', startIndex) - 1;
+                    float.TryParse(htmlData.Substring(startIndex, endIndex - startIndex).Trim(new char[] { ' ', '"' }), out eStock.mthHigh);
+                    startIndex = htmlData.IndexOf("mthLow:", 15) + 7;
+                    endIndex = htmlData.IndexOf(',', startIndex) - 1;
+                    float.TryParse(htmlData.Substring(startIndex, endIndex - startIndex).Trim(new char[] { ' ', '"' }), out eStock.mthLow);
+                    startIndex = htmlData.IndexOf("wk52High:", 15) + 9;
+                    endIndex = htmlData.IndexOf(',', startIndex) - 1;
+                    float.TryParse(htmlData.Substring(startIndex, endIndex - startIndex).Trim(new char[] { ' ', '"' }), out eStock.wk52High);
+                    startIndex = htmlData.IndexOf("wk52Low:", 15) + 8;
+                    endIndex = htmlData.IndexOf(',', startIndex) - 1;
+                    float.TryParse(htmlData.Substring(startIndex, endIndex - startIndex).Trim(new char[] { ' ', '"' }), out eStock.wk52Low);
+                    startIndex = htmlData.IndexOf("ma10:", 15) + 5;
+                    endIndex = htmlData.IndexOf(',', startIndex) - 1;
+                    float.TryParse(htmlData.Substring(startIndex, endIndex - startIndex).Trim(new char[] { ' ', '"' }), out eStock.ma10);
+                    startIndex = htmlData.IndexOf("ma20:", 15) + 5;
+                    endIndex = htmlData.IndexOf(',', startIndex) - 1;
+                    float.TryParse(htmlData.Substring(startIndex, endIndex - startIndex).Trim(new char[] { ' ', '"' }), out eStock.ma20);
+                    startIndex = htmlData.IndexOf("ma20:", 15) + 5;
+                    endIndex = htmlData.IndexOf(',', startIndex) - 1;
+                    float.TryParse(htmlData.Substring(startIndex, endIndex - startIndex).Trim(new char[] { ' ', '"' }), out eStock.ma50);
+                    startIndex = htmlData.IndexOf("rsi10:", 15) + 6;
+                    endIndex = htmlData.IndexOf(',', startIndex) - 1;
+                    float.TryParse(htmlData.Substring(startIndex, endIndex - startIndex).Trim(new char[] { ' ', '"' }), out eStock.rsi10);
+                    startIndex = htmlData.IndexOf("rsi14:", 15) + 6;
+                    endIndex = htmlData.IndexOf(',', startIndex) - 1;
+                    float.TryParse(htmlData.Substring(startIndex, endIndex - startIndex).Trim(new char[] { ' ', '"' }), out eStock.rsi14);
+                    startIndex = htmlData.IndexOf("rsi20:", 15) + 6;
+                    endIndex = htmlData.IndexOf(',', startIndex) - 1;
+                    float.TryParse(htmlData.Substring(startIndex, endIndex - startIndex).Trim(new char[] { ' ', '"' }), out eStock.rsi20);
+                }
 
                 request = (HttpWebRequest)WebRequest.Create("http://money18.on.cc/js/real/quote/" + stock.code.Substring(0, stock.code.Length - 3) + "_r.js?t=1294639633954");
                 request.Referer = "http://money18.on.cc/info/liveinfo_quote.html";
@@ -340,6 +373,9 @@ namespace stockMgr
                 startIndex = htmlData.IndexOf("dyl:", 15) + 4;
                 endIndex = htmlData.IndexOf('\n', startIndex) - 1;
                 float.TryParse(htmlData.Substring(startIndex, endIndex - startIndex).Trim(new char[] { ' ', '\'' }), out stock.low);
+                startIndex = htmlData.IndexOf("vol:", 15) + 4;
+                endIndex = htmlData.IndexOf(',', startIndex) - 1;
+                uint.TryParse(htmlData.Substring(startIndex, endIndex - startIndex).Trim(new char[] { ' ', '\'' }), out stock.volume);
             }
             catch (Exception ex)
             {

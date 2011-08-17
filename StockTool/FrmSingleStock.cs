@@ -37,6 +37,17 @@ namespace StockTool
             lblROC.ForeColor = changeColor;
             lblHigh.Text = float.IsNaN(stock.high) ? "N/A" : stock.high.ToString("0.000");
             lblLow.Text = float.IsNaN(stock.low) ? "N/A" : stock.low.ToString("0.000");
+            lblVolume.Text = stock.volume.ToString("N0");
+            lblMthHigh.Text = float.IsNaN(stock.mthHigh) ? "N/A" : stock.mthHigh.ToString("0.000");
+            lblMthLow.Text = float.IsNaN(stock.mthLow) ? "N/A" : stock.mthLow.ToString("0.000");
+            lblWk52High.Text = float.IsNaN(stock.wk52High) ? "N/A" : stock.wk52High.ToString("0.000");
+            lblWk52Low.Text = float.IsNaN(stock.wk52Low) ? "N/A" : stock.wk52Low.ToString("0.000");
+            lblMa10.Text = float.IsNaN(stock.ma10) ? "N/A" : stock.ma10.ToString("0.000");
+            lblMa20.Text = float.IsNaN(stock.ma20) ? "N/A" : stock.ma20.ToString("0.000");
+            lblMa50.Text = float.IsNaN(stock.ma50) ? "N/A" : stock.ma50.ToString("0.000");
+            lblRsi10.Text = float.IsNaN(stock.rsi10) ? "N/A" : stock.rsi10.ToString("0.000");
+            lblRsi14.Text = float.IsNaN(stock.rsi14) ? "N/A" : stock.rsi14.ToString("0.000");
+            lblRsi20.Text = float.IsNaN(stock.rsi20) ? "N/A" : stock.rsi20.ToString("0.000");
             float imgScaleW = (float)pictureBoxChart.Width / stock.img.Width;
             float imgScaleH = (float)pictureBoxChart.Height / stock.img.Height;
             float imgScale = (imgScaleW < imgScaleH) ? imgScaleW : imgScaleH;

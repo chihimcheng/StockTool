@@ -12,7 +12,7 @@ namespace stockMgr
         public float close = float.NaN;
         public float high = float.NaN;
         public float low = float.NaN;
-        public float volume = 0;
+        public uint volume = 0;
         public float change = 0;
         public float ROC = 0;
 
@@ -76,6 +76,16 @@ namespace stockMgr
 
         public float ask = float.NaN;
         public float bit = float.NaN;
+        public float mthHigh = float.NaN;
+        public float mthLow = float.NaN;
+        public float wk52High = float.NaN;
+        public float wk52Low = float.NaN;
+        public float ma10 = float.NaN;
+        public float ma20 = float.NaN;
+        public float ma50 = float.NaN;
+        public float rsi10 = float.NaN;
+        public float rsi14 = float.NaN;
+        public float rsi20 = float.NaN;
         public Image img = null;
     }
 }
