@@ -337,7 +337,7 @@ namespace stockMgr
                     startIndex = htmlData.IndexOf("ma20:", 15) + 5;
                     endIndex = htmlData.IndexOf(',', startIndex) - 1;
                     float.TryParse(htmlData.Substring(startIndex, endIndex - startIndex).Trim(new char[] { ' ', '"' }), out eStock.ma20);
-                    startIndex = htmlData.IndexOf("ma20:", 15) + 5;
+                    startIndex = htmlData.IndexOf("ma50:", 15) + 5;
                     endIndex = htmlData.IndexOf(',', startIndex) - 1;
                     float.TryParse(htmlData.Substring(startIndex, endIndex - startIndex).Trim(new char[] { ' ', '"' }), out eStock.ma50);
                     startIndex = htmlData.IndexOf("rsi10:", 15) + 6;
