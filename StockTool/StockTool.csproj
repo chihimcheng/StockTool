@@ -101,6 +101,7 @@
     <Compile Include="FrmSingleStock.Designer.cs">
       <DependentUpon>FrmSingleStock.cs</DependentUpon>
     </Compile>
+    <Compile Include="Layout.cs" />
     <Compile Include="MdiStockTool.cs">
       <SubType>Form</SubType>
     </Compile>

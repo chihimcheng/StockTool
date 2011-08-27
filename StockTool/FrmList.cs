@@ -66,12 +66,7 @@ namespace StockTool
 
                 for (int i = 0; i < dgvStockList.Rows.Count; i++)
                 {
-                    if (stocks[i].change > 0)
-                        dgvStockList.Rows[i].DefaultCellStyle.BackColor = Color.LightGreen;
-                    else if (stocks[i].change < 0)
-                        dgvStockList.Rows[i].DefaultCellStyle.BackColor = Color.LightPink;
-                    else
-                        dgvStockList.Rows[i].DefaultCellStyle.BackColor = Color.White;
+                    dgvStockList.Rows[i].DefaultCellStyle.BackColor = StockTool.Layout.getRocColor(stocks[i].ROC);
                     dgvStockList.Rows[i].Cells["colCode"].ToolTipText = stocks[i].name;
                     dgvStockList.Rows[i].Cells["colPrice"].Value = stocks[i].close;
                     dgvStockList.Rows[i].Cells["colChange"].Value = stocks[i].change;
