@@ -9,16 +9,18 @@ namespace StockTool
     {
         static public Color getRocColor(float roc)
         {
-            int colorVal;
+            double colorLightness;  //0 to 1
             if (roc > 0)
             {
-                colorVal = (int)Math.Max(0, 230 - Math.Log(1 + roc, 11) * 230);
-                return Color.FromArgb(colorVal, 255, colorVal);
+                colorLightness = Math.Max(1 - Math.Log(1 + roc, 11), 0);
+                int lightnessOther = (int)(224 * colorLightness);
+                return Color.FromArgb(lightnessOther, (int)(38 * colorLightness + 217), lightnessOther);
             }
             else if (roc < 0)
             {
-                colorVal = (int)Math.Max(0, 230 - Math.Log(1 - roc, 11) * 230);
-                return Color.FromArgb(255, colorVal, colorVal);
+                colorLightness = Math.Max(1 - Math.Log(1 - roc, 11), 0);
+                int lightnessOther = (int)(164 * colorLightness + 73);
+                return Color.FromArgb(255, lightnessOther, lightnessOther);
             }
             else
                 return Color.White;
