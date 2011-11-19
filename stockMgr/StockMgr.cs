@@ -186,7 +186,7 @@ namespace stockMgr
             {
                 throw ex;
             }
-            return Him.Finance.Stock.Utility.CalVolatility(prices);
+            return Him.Financial.Stock.Stock.CalVolatility(prices);
         }
 
         public void RefreshHKIndice()

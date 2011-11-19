@@ -6,7 +6,7 @@ using System.Drawing;
 using System.Text;
 using System.Windows.Forms;
 using stockMgr;
-using Him.Finance.Stock;
+using Him.Financial.Stock;
 
 namespace StockTool
 {
