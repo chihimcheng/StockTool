@@ -5,6 +5,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "stockMgr", "stockMgr\stockM
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StockTool", "StockTool\StockTool.csproj", "{B96E1FA3-73CE-4F63-BF03-CCF619C0BCDE}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Profolio", "Profolio\Profolio.csproj", "{644F2C6C-301A-4726-A2E8-283B0D6C20DF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -19,6 +21,10 @@ Global
 		{B96E1FA3-73CE-4F63-BF03-CCF619C0BCDE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B96E1FA3-73CE-4F63-BF03-CCF619C0BCDE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B96E1FA3-73CE-4F63-BF03-CCF619C0BCDE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{644F2C6C-301A-4726-A2E8-283B0D6C20DF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{644F2C6C-301A-4726-A2E8-283B0D6C20DF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{644F2C6C-301A-4726-A2E8-283B0D6C20DF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{644F2C6C-301A-4726-A2E8-283B0D6C20DF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

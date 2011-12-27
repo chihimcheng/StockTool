@@ -36,8 +36,10 @@
             this.監視清單ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.指數IToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.匯率ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.openToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.組合管理ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.加入交易ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
+            this.openToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.saveToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.saveAsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator4 = new System.Windows.Forms.ToolStripSeparator();
@@ -89,6 +91,7 @@
             this.toolStripStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
             this.setThreadExecutionStateTimer = new System.Windows.Forms.Timer(this.components);
+            this.交易查詢ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip.SuspendLayout();
             this.toolStrip.SuspendLayout();
             this.statusStrip.SuspendLayout();
@@ -117,8 +120,9 @@
             this.監視清單ToolStripMenuItem,
             this.指數IToolStripMenuItem,
             this.匯率ToolStripMenuItem,
-            this.openToolStripMenuItem,
+            this.組合管理ToolStripMenuItem,
             this.toolStripSeparator3,
+            this.openToolStripMenuItem,
             this.saveToolStripMenuItem,
             this.saveAsToolStripMenuItem,
             this.toolStripSeparator4,
@@ -160,6 +164,27 @@
             this.匯率ToolStripMenuItem.Text = "匯率(&C)";
             this.匯率ToolStripMenuItem.Click += new System.EventHandler(this.匯率ToolStripMenuItem_Click);
             // 
+            // 組合管理ToolStripMenuItem
+            // 
+            this.組合管理ToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.加入交易ToolStripMenuItem,
+            this.交易查詢ToolStripMenuItem});
+            this.組合管理ToolStripMenuItem.Name = "組合管理ToolStripMenuItem";
+            this.組合管理ToolStripMenuItem.Size = new System.Drawing.Size(188, 22);
+            this.組合管理ToolStripMenuItem.Text = "組合管理(&P)";
+            // 
+            // 加入交易ToolStripMenuItem
+            // 
+            this.加入交易ToolStripMenuItem.Name = "加入交易ToolStripMenuItem";
+            this.加入交易ToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.加入交易ToolStripMenuItem.Text = "加入交易(&A)";
+            this.加入交易ToolStripMenuItem.Click += new System.EventHandler(this.加入交易ToolStripMenuItem_Click);
+            // 
+            // toolStripSeparator3
+            // 
+            this.toolStripSeparator3.Name = "toolStripSeparator3";
+            this.toolStripSeparator3.Size = new System.Drawing.Size(185, 6);
+            // 
             // openToolStripMenuItem
             // 
             this.openToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("openToolStripMenuItem.Image")));
@@ -169,11 +194,6 @@
             this.openToolStripMenuItem.Size = new System.Drawing.Size(188, 22);
             this.openToolStripMenuItem.Text = "開啟舊檔(&O)";
             this.openToolStripMenuItem.Click += new System.EventHandler(this.OpenFile);
-            // 
-            // toolStripSeparator3
-            // 
-            this.toolStripSeparator3.Name = "toolStripSeparator3";
-            this.toolStripSeparator3.Size = new System.Drawing.Size(185, 6);
             // 
             // saveToolStripMenuItem
             // 
@@ -583,6 +603,13 @@
             this.setThreadExecutionStateTimer.Interval = 59000;
             this.setThreadExecutionStateTimer.Tick += new System.EventHandler(this.setThreadExecutionStateTimer_Tick);
             // 
+            // 交易查詢ToolStripMenuItem
+            // 
+            this.交易查詢ToolStripMenuItem.Name = "交易查詢ToolStripMenuItem";
+            this.交易查詢ToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.交易查詢ToolStripMenuItem.Text = "交易查詢(&Q)";
+            this.交易查詢ToolStripMenuItem.Click += new System.EventHandler(this.交易查詢ToolStripMenuItem_Click);
+            // 
             // MdiStockTool
             // 
             this.AllowDrop = true;
@@ -672,6 +699,9 @@
         private System.Windows.Forms.ToolStripMenuItem 最上層顯示ToolStripMenuItem;
         private System.Windows.Forms.Timer setThreadExecutionStateTimer;
         private System.Windows.Forms.ToolStripMenuItem 關閉螢幕保護ToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem 組合管理ToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem 加入交易ToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem 交易查詢ToolStripMenuItem;
     }
 }
 

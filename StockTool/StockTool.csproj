@@ -43,6 +43,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <PlatformTarget>x86</PlatformTarget>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -52,7 +53,27 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x86\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
+    <OutputPath>bin\x86\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+  </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Him.Collections, Version=1.0.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\Programming Library\c#\Him.Collections.dll</HintPath>
+    </Reference>
     <Reference Include="Him.Financial, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\Programming Library\c#\Him.Financial.dll</HintPath>
@@ -95,6 +116,18 @@
     <Compile Include="FrmOptionPricing.Designer.cs">
       <DependentUpon>FrmOptionPricing.cs</DependentUpon>
     </Compile>
+    <Compile Include="FrmProfolioAddTransaction.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FrmProfolioAddTransaction.Designer.cs">
+      <DependentUpon>FrmProfolioAddTransaction.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FrmQueryTransaction.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FrmQueryTransaction.Designer.cs">
+      <DependentUpon>FrmQueryTransaction.cs</DependentUpon>
+    </Compile>
     <Compile Include="FrmSingleStock.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -102,6 +135,12 @@
       <DependentUpon>FrmSingleStock.cs</DependentUpon>
     </Compile>
     <Compile Include="Layout.cs" />
+    <Compile Include="LineSeparator.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="LineSeparator.Designer.cs">
+      <DependentUpon>LineSeparator.cs</DependentUpon>
+    </Compile>
     <Compile Include="MdiStockTool.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -128,6 +167,14 @@
     </EmbeddedResource>
     <EmbeddedResource Include="FrmOptionPricing.resx">
       <DependentUpon>FrmOptionPricing.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FrmProfolioAddTransaction.resx">
+      <DependentUpon>FrmProfolioAddTransaction.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FrmQueryTransaction.resx">
+      <DependentUpon>FrmQueryTransaction.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="FrmSingleStock.resx">
@@ -186,6 +233,10 @@
     <Content Include="StockTool.ico" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Profolio\Profolio.csproj">
+      <Project>{644F2C6C-301A-4726-A2E8-283B0D6C20DF}</Project>
+      <Name>Profolio</Name>
+    </ProjectReference>
     <ProjectReference Include="..\stockMgr\stockMgr.csproj">
       <Project>{4854C26E-2AAA-465E-A432-AB77783BE69A}</Project>
       <Name>stockMgr</Name>

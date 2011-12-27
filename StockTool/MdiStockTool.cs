@@ -9,6 +9,7 @@ using System.IO;
 using System.Runtime.InteropServices;
 using System.Xml;
 using stockMgr;
+using Profolio;
 
 namespace StockTool
 {
@@ -18,6 +19,7 @@ namespace StockTool
         static extern uint SetThreadExecutionState(uint esFlags);
 
         private StockMgr _stockMgr = new StockMgr();
+        private ProfolioMgr _profolioMgr;
 
         delegate void writeStatusBarCallback(Form sender, string msg);
         public void writeStatusBar(Form sender, string msg)
@@ -40,6 +42,15 @@ namespace StockTool
         public MdiStockTool()
         {
             InitializeComponent();
+            try
+            {
+                _profolioMgr = new ProfolioMgr();
+            }
+            catch
+            {
+                _profolioMgr = null;
+                組合管理ToolStripMenuItem.Enabled = false;
+            }
         }
 
         private void OpenFile(object sender, EventArgs e)
@@ -240,6 +251,20 @@ namespace StockTool
             FrmCurrency frmCurrency = new FrmCurrency(_stockMgr);
             frmCurrency.MdiParent = this;
             frmCurrency.Show();
+        }
+
+        private void 加入交易ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            FrmProfolioAddTransaction frmProfAddTran = new FrmProfolioAddTransaction(_profolioMgr);
+            frmProfAddTran.MdiParent = this;
+            frmProfAddTran.Show();
+        }
+
+        private void 交易查詢ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            FrmQueryTransaction frmQueryTransaction = new FrmQueryTransaction(_stockMgr, _profolioMgr);
+            frmQueryTransaction.MdiParent = this;
+            frmQueryTransaction.Show();
         }
 
         private void 最上層顯示ToolStripMenuItem_Click(object sender, EventArgs e)
