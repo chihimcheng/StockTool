@@ -75,86 +75,106 @@ namespace stockMgr
             if (stocks.Length == 0)
                 return;
 
-            try
+            SortedDictionary<string, StockData> stockDict = new SortedDictionary<string, StockData>();
+            SortedDictionary<string, int> quoteState = new SortedDictionary<string, int>();
+            Mutex quoteStateMutex = new Mutex();
+            foreach (StockData stock in stocks)
             {
-                System.Text.StringBuilder codes = new System.Text.StringBuilder(stocks.Length);
-                codes.Append(stocks[0].code);
-                for (int i = 1; i < stocks.Length; i++)
-                    codes.Append('+' + stocks[i].code);
-                
-                //Get data from Yahoo!
-                HttpWebRequest request = (HttpWebRequest)WebRequest.Create("http://download.finance.yahoo.com/d/quotes.csv?s=" + codes.ToString() + "&f=snl1cgh");
-                HttpWebResponse response = (HttpWebResponse)request.GetResponse();
-                Stream webStream = response.GetResponseStream();
-                StreamReader sr = new StreamReader(webStream);
-                string hstring = sr.ReadToEnd();
-                sr.Close();
-                webStream.Close();
-                response.Close();
-                string[] allData = hstring.Split(new string [] {"\r\n"}, StringSplitOptions.RemoveEmptyEntries);
-                Regex regexObj = new Regex(@"(""([^""]*|""{2})*""(,|$))|""[^""]*""(,|$)|[^,]+(,|$)|(,)");
-                for (int i = 0, j = 0; i < stocks.Length && j < allData.Length; i++, j++)
-                {
-                    MatchCollection matchResults = regexObj.Matches(allData[j]);
-                    while (i < stocks.Length && stocks[i].code.Trim() != matchResults[0].Value.Trim(new char[] { '"', ',' }))
-                        i++;
-                    stocks[i].name = matchResults[1].Value.Trim(new char[] { '"', ',' });
-                    stocks[i].close = float.Parse(matchResults[2].Value.Trim(new char[] { '"', ',' }));
-                    string[] strChange = matchResults[3].Value.Trim(new char[] { '"', ',' }).Split(new String[] { " - " }, StringSplitOptions.None);
-                    if (strChange[0] != "N/A")
-                    {
-                        stocks[i].change = float.Parse(strChange[0].Trim('\"'));
-                        stocks[i].ROC = float.Parse(strChange[1].Trim(new char[] { '\"', '%' }));
-                    }
-                    float.TryParse(matchResults[4].Value.Trim(new char[] { '"', ',' }), out stocks[i].low);
-                    float.TryParse(matchResults[5].Value.Trim(new char[] { '"', ',' }), out stocks[i].high);
-                }
+                stockDict.Add(stock.code, stock);
+                quoteState.Add(stock.code, 0);
+            }
 
-                ManualResetEvent[] doneEvents = new ManualResetEvent[stocks.Length];
-                List<Exception> exs = new List<Exception>();
-                Mutex exsMutex = new Mutex();
-                for (int i = 0; i < stocks.Length; i++)
-                {
-                    doneEvents[i] = new ManualResetEvent(true);
-                    if (stocks[i].code.Substring(stocks[i].code.Length - 3) == ".HK")  //Is HK stock
-                    {
-                        ManualResetEvent curEvent = doneEvents[i];
-                        StockData curStock = stocks[i];
-                        doneEvents[i].Reset();
-                        new Thread(delegate()
-                            {
-                                try
-                                {
-                                    //GetQuoteFromAA(curStock);
-                                    GetQuoteFromM18(curStock);
-                                }
-                                catch (Exception ex)
-                                {
-                                    exsMutex.WaitOne();
-                                    exs.Add(ex);
-                                    exsMutex.ReleaseMutex();
-                                }
-                                curEvent.Set();
-                            }).Start();
-                    }
-                    else if (stocks[i].code[0] == '^' && _indexCollection.Find(stocks[i].code.Substring(1)) >= 0)    //is index
-                    {
-                        stocks[i] = _indexCollection[stocks[i].code.Substring(1)].Clone();
-                    }
-                }
-                WaitHandle.WaitAll(doneEvents);
-                if (exs.Count > 0)
-                {
-                    System.Text.StringBuilder sb = new System.Text.StringBuilder();
-                    foreach (Exception ex in exs)
-                        sb.Append(ex.Message + "\n");
-                    throw new Exception(sb.ToString());
-                }
-            }
-            catch (Exception e)
+            ManualResetEvent[] doneEvents = new ManualResetEvent[stocks.Length];
+            for (int i = 0; i < stocks.Length; i++)
             {
-                throw e;
+                doneEvents[i] = new ManualResetEvent(true);
+                if (stocks[i].code.Substring(stocks[i].code.Length - 3) == ".HK")  //Is HK stock
+                {
+                    ManualResetEvent curEvent = doneEvents[i];
+                    StockData curStock = stocks[i];
+                    doneEvents[i].Reset();
+                    new Thread(delegate()
+                    {
+                        try
+                        {
+                            GetQuoteFromM18(curStock);
+                            quoteStateMutex.WaitOne();
+                            quoteState[curStock.code] = quoteState[curStock.code] | 0x01;
+                            quoteStateMutex.ReleaseMutex();
+                        }
+                        catch
+                        {
+                            quoteStateMutex.WaitOne();
+                            quoteState[curStock.code] = quoteState[curStock.code] | 0x10;
+                            quoteStateMutex.ReleaseMutex();
+                        }
+                        curEvent.Set();
+                    }).Start();
+                }
+                else if (stocks[i].code[0] == '^' && _indexCollection.Find(stocks[i].code.Substring(1)) >= 0)    //is index
+                {
+                    stocks[i] = _indexCollection[stocks[i].code.Substring(1)].Clone();
+                }
             }
+            WaitHandle.WaitAll(doneEvents);
+
+            //Get data from Yahoo!
+            System.Text.StringBuilder codes = new System.Text.StringBuilder();
+            foreach (KeyValuePair<string, int> kwpState in quoteState)
+            {
+                if ((kwpState.Value & 0x01) == 0)
+                {
+                    if (codes.Length > 0) codes.Append('+' + kwpState.Key);
+                    else codes.Append(kwpState.Key);
+                }
+            }
+            if (codes.Length > 0)
+            {
+                try
+                {
+                    HttpWebRequest request = (HttpWebRequest)WebRequest.Create("http://download.finance.yahoo.com/d/quotes.csv?s=" + codes.ToString() + "&f=snl1cgh");
+                    HttpWebResponse response = (HttpWebResponse)request.GetResponse();
+                    Stream webStream = response.GetResponseStream();
+                    StreamReader sr = new StreamReader(webStream);
+                    string hstring = sr.ReadToEnd();
+                    sr.Close();
+                    webStream.Close();
+                    response.Close();
+                    string[] allData = hstring.Split(new string[] { "\r\n" }, StringSplitOptions.RemoveEmptyEntries);
+                    Regex regexObj = new Regex(@"(""([^""]*|""{2})*""(,|$))|""[^""]*""(,|$)|[^,]+(,|$)|(,)");
+                    for (int i = 0; i < allData.Length; i++)
+                    {
+                        MatchCollection matchResults = regexObj.Matches(allData[i]);
+                        string curCode = matchResults[0].Value.Trim(new char[] { '"', ',' });
+                        StockData curStock = stockDict[curCode];
+                        curStock.name = matchResults[1].Value.Trim(new char[] { '"', ',' });
+                        curStock.close = float.Parse(matchResults[2].Value.Trim(new char[] { '"', ',' }));
+                        string[] strChange = matchResults[3].Value.Trim(new char[] { '"', ',' }).Split(new String[] { " - " }, StringSplitOptions.None);
+                        if (strChange[0] != "N/A")
+                        {
+                            curStock.change = float.Parse(strChange[0].Trim('\"'));
+                            curStock.ROC = float.Parse(strChange[1].Trim(new char[] { '\"', '%' }));
+                        }
+                        float.TryParse(matchResults[4].Value.Trim(new char[] { '"', ',' }), out curStock.low);
+                        float.TryParse(matchResults[5].Value.Trim(new char[] { '"', ',' }), out curStock.high);
+                        quoteState[curCode] = quoteState[curCode] | 0x01;
+                    }
+                }
+                catch
+                {
+                }
+            }
+
+            string errStr = "";
+            foreach (KeyValuePair<string, int> kwpState in quoteState)
+            {
+                if ((kwpState.Value & 0x01) == 0)
+                    errStr += kwpState.Key + ": 更新失敗\n";
+                else if ((kwpState.Value & 0x10) != 0)
+                    errStr += kwpState.Key + ": 即時報價失敗\n";
+            }
+            if (!string.IsNullOrEmpty(errStr))
+                throw new Exception(errStr);
         }
         
         public double GetVolatility(string code, int numOfDays)
