@@ -16,6 +16,12 @@ namespace stockMgr
         public float change = 0;
         public float ROC = 0;
 
+        public enum CodeFormat
+        {
+            DEFAULT,
+            YAHOO,
+        }
+
         static public string CodeFromString(string str)
         {
             string ret;
@@ -26,6 +32,23 @@ namespace stockMgr
                 ret = str.ToUpper();
             if (ret.EndsWith(".HK"))
                 ret = ret.PadLeft(8, '0');
+            return ret;
+        }
+
+        static public string CodeFromString(string str, CodeFormat outputFormat)
+        {
+            string ret = null;
+            switch (outputFormat)
+            {
+                case CodeFormat.DEFAULT:
+                    ret = CodeFromString(str);
+                    break;
+                case CodeFormat.YAHOO:
+                    ret = CodeFromString(str);
+                    if (ret.EndsWith(".HK") && ret[0] == '0')
+                        ret = ret.Substring(1);
+                    break;
+            }
             return ret;
         }
         

@@ -114,6 +114,10 @@ namespace stockMgr
                 else if (stocks[i].code[0] == '^' && _indexCollection.Find(stocks[i].code.Substring(1)) >= 0)    //is index
                 {
                     stocks[i] = _indexCollection[stocks[i].code.Substring(1)].Clone();
+                    stocks[i].code = '^' + stocks[i].code;
+                    quoteStateMutex.WaitOne();
+                    quoteState[stocks[i].code] = quoteState[stocks[i].code] | 0x01;
+                    quoteStateMutex.ReleaseMutex();
                 }
             }
             WaitHandle.WaitAll(doneEvents);
@@ -124,8 +128,8 @@ namespace stockMgr
             {
                 if ((kwpState.Value & 0x01) == 0)
                 {
-                    if (codes.Length > 0) codes.Append('+' + kwpState.Key);
-                    else codes.Append(kwpState.Key);
+                    if (codes.Length > 0) codes.Append('+' + StockData.CodeFromString(kwpState.Key, StockData.CodeFormat.YAHOO));
+                    else codes.Append(StockData.CodeFromString(kwpState.Key, StockData.CodeFormat.YAHOO));
                 }
             }
             if (codes.Length > 0)
@@ -145,7 +149,7 @@ namespace stockMgr
                     for (int i = 0; i < allData.Length; i++)
                     {
                         MatchCollection matchResults = regexObj.Matches(allData[i]);
-                        string curCode = matchResults[0].Value.Trim(new char[] { '"', ',' });
+                        string curCode = StockData.CodeFromString(matchResults[0].Value.Trim(new char[] { '"', ',' }));
                         StockData curStock = stockDict[curCode];
                         curStock.name = matchResults[1].Value.Trim(new char[] { '"', ',' });
                         curStock.close = float.Parse(matchResults[2].Value.Trim(new char[] { '"', ',' }));
