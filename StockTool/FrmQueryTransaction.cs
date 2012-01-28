@@ -5,6 +5,7 @@ using System.Data;
 using System.Drawing;
 using System.Text;
 using System.Windows.Forms;
+using System.Threading;
 using Him.Collections.Generic;
 using stockMgr;
 using Profolio;
@@ -24,6 +25,9 @@ namespace StockTool
         private SortedDictionary<string, SortedDictionary<string, FutureTransaction>> _prevBalanceFuture = new SortedDictionary<string, SortedDictionary<string, FutureTransaction>>();
         private SortedDictionary<string, Transaction> _postBalance = new SortedDictionary<string, Transaction>();
         private SortedDictionary<string, SortedDictionary<string, FutureTransaction>> _postBalanceFuture = new SortedDictionary<string, SortedDictionary<string, FutureTransaction>>();
+        private Thread _queryThread = null;
+        private delegate void _UpdateTransactionCB(List<Transaction> transactions);
+        private delegate void _UpdateReturnCB();
 
         public FrmQueryTransaction(StockMgr stockMgr, ProfolioMgr profolioMgr)
         {
@@ -72,6 +76,52 @@ namespace StockTool
             newRow.Cells["colRROI"].Value = info.ROI * 100;
         }
 
+        private void _UpdateDgvTransaction(List<Transaction> transactions)
+        {
+            foreach (Transaction tran in transactions)
+                _AddTransactionToDgvTransaction(tran);
+            double netTotal = 0;
+            foreach (Transaction tran in _netTran.Values)
+            {
+                _AddTransactionToDgvTransaction(tran);
+                dgvTransaction.Rows[dgvTransaction.Rows.Count - 1].DefaultCellStyle.BackColor = Color.LightBlue;
+                netTotal += tran.payment;
+            }
+            foreach (FutureTransaction ft in _netTranFurture.Values)
+            {
+                _AddTransactionToDgvTransaction(ft);
+                dgvTransaction.Rows[dgvTransaction.Rows.Count - 1].DefaultCellStyle.BackColor = Color.LightBlue;
+                netTotal += ft.payment;
+            }
+            dgvTransaction.Rows.Add();
+            DataGridViewRow newRow = dgvTransaction.Rows[dgvTransaction.Rows.Count - 1];
+            newRow.Cells["colTCode"].Value = "TOTAL";
+            newRow.Cells["colTPayment"].Value = netTotal;
+            newRow.Cells["colTDescription"].Value = "總淨交易";
+            newRow.DefaultCellStyle.BackColor = Color.LightPink;
+        }
+
+        private void _UpdateReturn()
+        {
+            foreach (KeyValuePair<string, Transaction> kwp in _prevBalance)
+                _AddTransactionToDgvBalance(dgvPrevBalance, kwp.Value);
+            foreach (KeyValuePair<string, SortedDictionary<string, FutureTransaction>> pbDict in _prevBalanceFuture)
+            {
+                foreach (KeyValuePair<string, FutureTransaction> kwp in pbDict.Value)
+                    _AddTransactionToDgvBalance(dgvPrevBalance, kwp.Value);
+            }
+            foreach (KeyValuePair<string, Transaction> kwp in _postBalance)
+                _AddTransactionToDgvBalance(dgvPostBalance, kwp.Value);
+            foreach (KeyValuePair<string, SortedDictionary<string, FutureTransaction>> pbDict in _postBalanceFuture)
+            {
+                foreach (KeyValuePair<string, FutureTransaction> kwp in pbDict.Value)
+                    _AddTransactionToDgvBalance(dgvPostBalance, kwp.Value);
+            }
+
+            //Process return
+            _UpdateDgvReturn();
+        }
+
         private void _UpdateDgvReturn()
         {
             dgvReturn.Rows.Clear();
@@ -104,7 +154,7 @@ namespace StockTool
             {
                 Transaction curPrevBalance, curNetTran, curPostBalance;
                 FutureTransaction curNetTranFuture;
-                SortedDictionary<string, FutureTransaction> curPrevBalanceFutureDct, curPostBalanceFutureDct;
+                SortedDictionary<string, FutureTransaction> curBalanceFutureDct;
                 List<double> payments = new List<double>();
                 List<DateTime> dates = new List<DateTime>();
                 if (_prevBalance.TryGetValue(kwpRet.Key, out curPrevBalance))
@@ -115,9 +165,9 @@ namespace StockTool
                     allPayments.Add(curPrevBalance.payment);
                     allDates.Add(curPrevBalance.date);
                 }
-                if (_prevBalanceFuture.TryGetValue(kwpRet.Key, out curPostBalanceFutureDct))
+                if (_prevBalanceFuture.TryGetValue(kwpRet.Key, out curBalanceFutureDct))
                 {
-                    foreach (FutureTransaction ft in curPostBalanceFutureDct.Values)
+                    foreach (FutureTransaction ft in curBalanceFutureDct.Values)
                     {
                         kwpRet.Value.earning += ft.payment;
                         payments.Add(ft.payment);
@@ -151,9 +201,9 @@ namespace StockTool
                         }
                     }
                 }
-                if (_postBalanceFuture.TryGetValue(kwpRet.Key, out curPostBalanceFutureDct))
+                if (_postBalanceFuture.TryGetValue(kwpRet.Key, out curBalanceFutureDct))
                 {
-                    foreach (FutureTransaction ft in curPostBalanceFutureDct.Values)
+                    foreach (FutureTransaction ft in curBalanceFutureDct.Values)
                     {
                         kwpRet.Value.earning += ft.payment;
                         payments.Add(ft.payment);
@@ -183,43 +233,11 @@ namespace StockTool
             dgvReturn.Rows[dgvReturn.Rows.Count - 1].DefaultCellStyle.BackColor = Color.LightPink;
         }
 
-        private void _Reset()
+        private void _DoQuery(object param)
         {
-            _tran = _futureTran = null;
-            _netTran.Clear();
-            _netTranFurture.Clear();
-            _tranDct.Clear();
-            _tranFutureDct.Clear();
-            _prevBalance.Clear();
-            _prevBalanceFuture.Clear();
-            _postBalance.Clear();
-            _postBalanceFuture.Clear();
-            dgvTransaction.Rows.Clear();
-            dgvPrevBalance.Rows.Clear();
-            dgvPostBalance.Rows.Clear();
-            dgvReturn.Rows.Clear();
-        }
-
-        private void btnQuery_Click(object sender, EventArgs e)
-        {
-            _Reset();
-            DateTime from = DateTime.MinValue, to = DateTime.MaxValue;
-            if (!string.IsNullOrEmpty(txtDateFrom.Text))
-            {
-                if (!DateTime.TryParse(txtDateFrom.Text, out from))
-                {
-                    MessageBox.Show("日期輸入錯誤！", "錯誤", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    return;
-                }
-            }
-            if (!string.IsNullOrEmpty(txtDateTo.Text))
-            {
-                if (!DateTime.TryParse(txtDateTo.Text, out to))
-                {
-                    MessageBox.Show("日期輸入錯誤！", "錯誤", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    return;
-                }
-            }
+            object[] plist = (object[])param;
+            DateTime from = (DateTime)plist[0];
+            DateTime to = (DateTime)plist[1];
 
             try
             {
@@ -274,6 +292,8 @@ namespace StockTool
                 return;
             }
 
+            _UpdateTransactionCB updateTranCB = new _UpdateTransactionCB(_UpdateDgvTransaction);
+            List<Transaction> updateTranCbData = new List<Transaction>();
             //Process transaction data
             {
                 LinkedListNode<Transaction> t = _tran.First, ft = _futureTran.First;
@@ -281,7 +301,7 @@ namespace StockTool
                 {
                     if (ft == null || (t != null && t.Value.date <= ft.Value.date))
                     {
-                        _AddTransactionToDgvTransaction(t.Value);
+                        updateTranCbData.Add(t.Value);
                         List<Transaction> curTransactionLst;
                         if (!_tranDct.TryGetValue(t.Value.code, out curTransactionLst))
                         {
@@ -293,7 +313,7 @@ namespace StockTool
                     }
                     else
                     {
-                        _AddTransactionToDgvTransaction(ft.Value);
+                        updateTranCbData.Add(ft.Value);
                         SortedDictionary<string, List<FutureTransaction>> curDct;
                         if (!_tranFutureDct.TryGetValue(ft.Value.code, out curDct))
                         {
@@ -311,7 +331,6 @@ namespace StockTool
                     }
                 }
             }
-            double netTotal = 0;
             foreach (KeyValuePair<string, List<Transaction>> kwp in _tranDct)
             {
                 Transaction curNetTran = new Transaction();
@@ -326,9 +345,6 @@ namespace StockTool
                     curNetTran.payment += t.payment;
                 }
                 _netTran.Add(curNetTran.code, curNetTran);
-                _AddTransactionToDgvTransaction(curNetTran);
-                dgvTransaction.Rows[dgvTransaction.Rows.Count - 1].DefaultCellStyle.BackColor = Color.LightBlue;
-                netTotal += curNetTran.payment;
                 if (curNetTran.amount != 0)
                 {
                     Transaction curPostBalance;
@@ -388,20 +404,9 @@ namespace StockTool
                     }
                 }
                 _netTranFurture.Add(curNetTranFuture.code, curNetTranFuture);
-                _AddTransactionToDgvTransaction(curNetTranFuture);
-                dgvTransaction.Rows[dgvTransaction.Rows.Count - 1].DefaultCellStyle.BackColor = Color.LightBlue;
-                netTotal += curNetTranFuture.payment;
             }
-            {
-                dgvTransaction.Rows.Add();
-                DataGridViewRow newRow = dgvTransaction.Rows[dgvTransaction.Rows.Count - 1];
-                newRow.Cells["colTCode"].Value = "TOTAL";
-                newRow.Cells["colTTranDate"].Value = to.ToShortDateString();
-                newRow.Cells["colTPayment"].Value = netTotal;
-                newRow.Cells["colTDescription"].Value = "總淨交易";
-                newRow.DefaultCellStyle.BackColor = Color.LightPink;
-            }
-            
+            Invoke(updateTranCB, new object[] { updateTranCbData });
+
             //Process return data
             if (_prevBalance.Count > 0)
             {
@@ -476,9 +481,7 @@ namespace StockTool
                     }
                     try
                     {
-                        //_stockMgr.GetQuote(asset.ToArray());
-                        foreach (StockData stock in asset)
-                            _stockMgr.GetQuote(stock);
+                        _stockMgr.GetQuote(asset.ToArray());
                     }
                     catch (Exception ex)
                     {
@@ -515,23 +518,52 @@ namespace StockTool
                     curTran.payment = -curTran.amount * kwp.Value;
                 }
             }
-            foreach (KeyValuePair<string, Transaction> kwp in _prevBalance)
-                _AddTransactionToDgvBalance(dgvPrevBalance, kwp.Value);
-            foreach (KeyValuePair<string, SortedDictionary<string, FutureTransaction>> pbDict in _prevBalanceFuture)
+            Invoke(new _UpdateReturnCB(_UpdateReturn));
+        }
+
+        private void _Reset()
+        {
+            _tran = _futureTran = null;
+            _netTran.Clear();
+            _netTranFurture.Clear();
+            _tranDct.Clear();
+            _tranFutureDct.Clear();
+            _prevBalance.Clear();
+            _prevBalanceFuture.Clear();
+            _postBalance.Clear();
+            _postBalanceFuture.Clear();
+            dgvTransaction.Rows.Clear();
+            dgvPrevBalance.Rows.Clear();
+            dgvPostBalance.Rows.Clear();
+            dgvReturn.Rows.Clear();
+        }
+
+        private void btnQuery_Click(object sender, EventArgs e)
+        {
+            _Reset();
+            DateTime from = DateTime.MinValue, to = DateTime.MaxValue;
+            if (!string.IsNullOrEmpty(txtDateFrom.Text))
             {
-                foreach (KeyValuePair<string, FutureTransaction> kwp in pbDict.Value)
-                    _AddTransactionToDgvBalance(dgvPrevBalance, kwp.Value);
+                if (!DateTime.TryParse(txtDateFrom.Text, out from))
+                {
+                    MessageBox.Show("日期輸入錯誤！", "錯誤", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
             }
-            foreach (KeyValuePair<string, Transaction> kwp in _postBalance)
-                _AddTransactionToDgvBalance(dgvPostBalance, kwp.Value);
-            foreach (KeyValuePair<string, SortedDictionary<string, FutureTransaction>> pbDict in _postBalanceFuture)
+            if (!string.IsNullOrEmpty(txtDateTo.Text))
             {
-                foreach (KeyValuePair<string, FutureTransaction> kwp in pbDict.Value)
-                    _AddTransactionToDgvBalance(dgvPostBalance, kwp.Value);
+                if (!DateTime.TryParse(txtDateTo.Text, out to))
+                {
+                    MessageBox.Show("日期輸入錯誤！", "錯誤", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
             }
 
-            //Process return
-            _UpdateDgvReturn();
+            object[] plist = new object[2];
+            plist[0] = from;
+            plist[1] = to;
+            _queryThread = new Thread(_DoQuery);
+            _queryThread.Start(plist);
         }
 
         private void txtCode_Leave(object sender, EventArgs e)
