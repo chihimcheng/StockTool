@@ -323,16 +323,18 @@ namespace stockMgr
 
         private void GetQuoteFromM18(StockData stock)
         {
+            HttpWebRequest request = null;
             try
             {
-                HttpWebRequest request = (HttpWebRequest)WebRequest.Create("http://money18.on.cc/js/daily/quote/" + stock.code.Substring(0, stock.code.Length - 3) + "_d.js?t=1294639633954");
+                request = (HttpWebRequest)WebRequest.Create("http://money18.on.cc/js/daily/quote/" + stock.code.Substring(0, stock.code.Length - 3) + "_d.js?t=1294639633954");
                 request.Referer = "http://money18.on.cc/info/liveinfo_quote.html";
-                HttpWebResponse response = (HttpWebResponse)request.GetResponse();
-                Stream resStream = response.GetResponseStream();
-                StreamReader sr = new StreamReader(resStream, System.Text.Encoding.GetEncoding("big5"));
-                string htmlData = sr.ReadToEnd();
-                resStream.Close();
-                response.Close();
+                string htmlData;
+                using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
+                using (Stream resStream = response.GetResponseStream())
+                {
+                    StreamReader sr = new StreamReader(resStream, System.Text.Encoding.GetEncoding("big5"));
+                    htmlData = sr.ReadToEnd();
+                }
                 int startIndex = htmlData.IndexOf("nameChi:", 15) + 8;
                 int endIndex = htmlData.IndexOf(',', startIndex) - 1;
                 stock.name = htmlData.Substring(startIndex, endIndex - startIndex).Trim(new char[] { ' ', '"' });
@@ -377,12 +379,12 @@ namespace stockMgr
 
                 request = (HttpWebRequest)WebRequest.Create("http://money18.on.cc/js/real/quote/" + stock.code.Substring(0, stock.code.Length - 3) + "_r.js?t=1294639633954");
                 request.Referer = "http://money18.on.cc/info/liveinfo_quote.html";
-                response = (HttpWebResponse)request.GetResponse();
-                resStream = response.GetResponseStream();
-                sr = new StreamReader(resStream);
-                htmlData = sr.ReadToEnd();
-                resStream.Close();
-                response.Close();
+                using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
+                using (Stream resStream = response.GetResponseStream())
+                {
+                    StreamReader sr = new StreamReader(resStream);
+                    htmlData = sr.ReadToEnd();
+                }
                 startIndex = htmlData.IndexOf("np:", 15) + 3;
                 endIndex = htmlData.IndexOf(',', startIndex) - 1;
                 float.TryParse(htmlData.Substring(startIndex, endIndex - startIndex).Trim(new char[] { ' ', '\'' }), out stock.close);
