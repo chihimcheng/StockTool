@@ -187,9 +187,12 @@ namespace StockTool
                 for (int i = 0; i < startmonlists.Count; i++)
                 {
                     string path = ((XmlElement)startmonlists[i]).GetAttribute("path").Trim();
-                    TimeSpan on, off, curTime = DateTime.Now.TimeOfDay;
-                    on = TimeSpan.Parse(((XmlElement)startmonlists[i]).GetAttribute("on"));
-                    off = TimeSpan.Parse(((XmlElement)startmonlists[i]).GetAttribute("off"));
+                    TimeSpan on, off, utcOffset, curTime = DateTime.UtcNow.TimeOfDay;
+                    utcOffset = TimeSpan.Parse(((XmlElement)startmonlists[i]).GetAttribute("utc_offset"));
+                    on = TimeSpan.Parse(((XmlElement)startmonlists[i]).GetAttribute("on")) - utcOffset;
+                    off = TimeSpan.Parse(((XmlElement)startmonlists[i]).GetAttribute("off")) - utcOffset;
+                    on = on.Subtract(new TimeSpan(on.Days, 0, 0, 0));
+                    off = off.Subtract(new TimeSpan(off.Days, 0, 0, 0));
                     if ((on < off && curTime > on && curTime < off) || (on > off && (curTime > on || curTime < off)))
                     {
                         FrmList monList = new FrmList(_stockMgr, path);
